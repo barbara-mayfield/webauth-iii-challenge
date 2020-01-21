@@ -1,14 +1,16 @@
 const bcrypt = require("bcryptjs")
 const express = require("express")
+const jwt = require("jsonwebtoken")
+
 const usersModel = require("../users/user-model")
 
 const router = express.Router()
 
 router.post("/register", async (req, res, next) => {
     try {
-        const saved = await usersModel.add(req.body)
+        const registered = await usersModel.registerUser(req.body)
         
-        res.status(201).json(saved)
+        res.status(201).json(registered)
       } catch (err) {
         next(err)
       }
@@ -25,7 +27,7 @@ router.post("/login", async (req, res, next) => {
         const passwordValid = await bcrypt.compare(password, user.password)
         
         if (user && passwordValid) {
-          const token = "token";
+          const token = signToken(user);
     
           res.status(200).json({
             token,
@@ -38,5 +40,19 @@ router.post("/login", async (req, res, next) => {
         next(err)
       }
 })
+
+function signToken(user) {
+    const payload = {
+        username: user.username,
+    }
+
+    const secret = process.env.JWT_SECRET || "Super secret secret"
+    
+    const options = {
+        expiresIn: '1h'
+    }
+    
+    jwt.sign(payload, secret, options)
+}
 
 module.exports = router;
