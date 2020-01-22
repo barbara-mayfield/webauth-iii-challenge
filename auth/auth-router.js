@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs")
 const express = require("express")
 const jwt = require("jsonwebtoken")
+const secrets = require("../config/secrets")
 
 const usersModel = require("../users/user-model")
 
@@ -31,7 +32,7 @@ router.post("/login", async (req, res, next) => {
           const token = jwt.sign({
               subject: user.id,
               username: user.username,
-            }, process.env.JWT_SECRET, {
+            }, secrets.jwt, {
                 expiresIn: "12d",
           })
     
