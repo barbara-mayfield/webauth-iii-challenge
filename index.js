@@ -1,9 +1,6 @@
 const express = require("express")
 const helmet = require("helmet")
 const cors = require("cors")
-const dbConfig = require("./data/dbConfig")
-const session = require("express-session")
-const KnexSessionStore = require("connect-session-knex")(session)
 require("dotenv").config()
 
 const authRouter = require("./auth/auth-router.js")
@@ -15,21 +12,6 @@ const port = process.env.PORT || 8000
 server.use(helmet())
 server.use(cors())
 server.use(express.json())
-server.use(session({
-    name: "def not a session",
-    resave: false,
-    saveUninitialized: false,
-    secret: "super secret session",
-    cookie: {
-        httpOnly: true,
-        maxAge: 2629800000,
-        secure: false,
-    },
-    store: new KnexSessionStore({
-        knex: dbConfig,
-        createtable: true,
-    })
-}))
 
 server.use("/auth", authRouter)
 server.use("/users", usersRouter)

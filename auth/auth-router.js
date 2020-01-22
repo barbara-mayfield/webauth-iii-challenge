@@ -27,10 +27,17 @@ router.post("/login", async (req, res, next) => {
         const passwordValid = await bcrypt.compare(password, user.password)
         
         if (user && passwordValid) {
-          const token = signToken(user);
+            // sign token
+          const token = jwt.sign({
+              subject: user.id,
+              username: user.username,
+            }, process.env.JWT_SECRET, {
+                expiresIn: "12d",
+          })
     
+            // send token
           res.status(200).json({
-            token,
+            token: token,
             message: `${user.username} successfully logged in!`,
           })
         } else {
@@ -40,19 +47,5 @@ router.post("/login", async (req, res, next) => {
         next(err)
       }
 })
-
-function signToken(user) {
-    const payload = {
-        username: user.username,
-    }
-
-    const secret = process.env.JWT_SECRET || "Super secret secret"
-    
-    const options = {
-        expiresIn: '1h'
-    }
-    
-    jwt.sign(payload, secret, options)
-}
 
 module.exports = router;
